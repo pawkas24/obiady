@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Dodaj obiad</title>
+</head>
+
+<body>
+<h2>Obiady: </h2>
+
+<table>
+<tr>
+	<th>Data</th>
+	<th>Nazwa obiadu</th>
+	<th>Komentarz</th>
+	</tr>
+	<tr th:each="dinner : ${userDinners}"><td th:text="|${dinner.ateAt}, ${#temporals.dayOfWeekName(dinner.ateAt)} |">data</td>
+										  <td th:text="| - ${dinner.dinnerDetails.dinnerName}|">nazwa obiadu</td>
+										  <td th:text="${dinner.comment}">komentarz</td></tr>
+										  <!--type ukryty, będzie użyty do celów statystycznych chociaż dobrze by było żeby się pokazywał po zmianie pola i można było go zmienić  -->
+</table>
+<br>
+<form action="#" th:action="@{/dinner}" th:object="${newDinner}" method="post">
+	<p>Nazwa obiadu: <input list="dinners" name="dinnerName" autocomplete="off" placeholder="wpisz nazwę obiadu" th:field="*{dinnerDetails.dinnerName}"/></p>
+	<datalist id="dinners">
+		<option th:each="dinner: ${dinners}" th:value="${dinner.dinnerName}"></option>
+		<!-- <option th:each="dinner: ${userDinners}" th:value="${dinner.dinnerDetails.dinnerName}"></option> -->
+	</datalist>
+	<p>Komentarz: <input type="text" name="comment" placeholder="opcjonalny komentarz lub link do przepisu" th:field="*{comment}"/></p>
+	<p>Data obiadu: <input type="date" name="ateAt"  th:field="*{ateAt}"/></p>
+	<!--type zostanie dodany w postmapping albo th:switch -->	
+	<!--<ul>
+	<li th:each="type : ${types}">
+	<input type="radio" name="type" th:value="${type}" />
+	<span th:text="${type}">typ</span><br/>
+	</li>
+	</ul>-->
+	<input type="submit" value="Zapisz"/> 
+</form>
+<p th:text="${#temporals.createToday()}">data:</p> 
+
+
+</body>
+</html>
