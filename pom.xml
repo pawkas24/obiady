@@ -60,6 +60,48 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+    <groupId>nz.net.ultraq.thymeleaf</groupId>
+    <artifactId>thymeleaf-layout-dialect</artifactId>
+    
+</dependency>
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>bootstrap</artifactId>
+    <version>4.0.0</version>
+</dependency>
+
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>webjars-locator</artifactId>
+    <version>0.38</version>
+</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		
+<dependency> <!-- dodaje dostep do spring authetnication i pozwala wyswieltac zawartosc np w zaleznosci od typu uzytkownika albo czy jest zalogowany -->
+    <groupId>org.thymeleaf.extras</groupId>
+    <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

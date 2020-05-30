@@ -1,0 +1,26 @@
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<header th:fragment="header"> <!-- <header class="masthead mb-auto" th:fragment="header"> -->
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow" >
+	 <h5 class="my-0 mr-md-auto font-weight-normal">Obiadomat</h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="#" th:href="@{/dinner}">Dodaj obiad</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/search}">Szukaj</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/planer}">Planer</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/stats?option=oldest}">Statystyki</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/random}">Wylosuj</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/history}">Historia</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/recipes}">Twoje przepisy</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/shopping-cart}">Koszyk</a>
+      </nav>
+      
+      	<div sec:authorize="!isAuthenticated()">
+			<a class="btn btn-outline-primary" href="#" th:href="@{/login}">Logowanie</a>
+		</div>
+		<div sec:authorize="isAuthenticated()">
+			<a class="btn btn-outline-primary" href="#" th:href="@{/logout}">Wyloguj, <span sec:authentication="principal.username"/></a>
+		</div>
+    </div>
+</header>
+</head>
+
+

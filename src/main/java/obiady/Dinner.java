@@ -2,15 +2,23 @@ package obiady;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -23,13 +31,21 @@ public class Dinner implements Serializable{
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)  //IDENTITY
 	private Long id;
-	//@OneToOne
+	
 	@ManyToOne(fetch = FetchType.LAZY)
-	private DinnerDetails dinnerDetails;                 //private String dinnersName;		//wyodrebnic do nowej tabeli, zeby nie powtarzaly sie wpisy
+	private DinnerDetails dinnerDetail;  
+	
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private LocalDate ateAt;
-	//private Type type;            //w przypadku spornym np kotlety mielone powinno poprosić o zaznaczenie użytego mięsa
+
+	@ManyToMany(cascade= {CascadeType.PERSIST, CascadeType.MERGE})
+	@JoinTable(name="dinner_category", 
+		joinColumns = @JoinColumn(name="dinner_id"),
+		inverseJoinColumns = @JoinColumn(name="category_id"))
+	private Set<Category> categories = new HashSet<>();
+	
 	private String comment;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User user;
 	/**
@@ -38,14 +54,25 @@ public class Dinner implements Serializable{
 		this.ateAt = LocalDate.now();
 	}**/
 
-	public Dinner(DinnerDetails dinnerDetails, User user, LocalDate ateAt) { //Type type
-		this.dinnerDetails = dinnerDetails;
+	public Dinner(DinnerDetails dinnerDetail, User user, LocalDate ateAt, String comment) { //Type type //a comment??
+		this.dinnerDetail = dinnerDetail;
 		this.ateAt = ateAt;
 		//this.type = type;
 		this.user = user;
+		this.comment = comment;
 	}
 
 	public Dinner() {
+	}
+	
+	public void addCategory(Category category) {
+		categories.add(category);
+		category.getDinners().add(this);
+	}
+	
+	public void removeCategory(Category category) {
+		categories.remove(category);
+		category.getDinners().remove(this);
 	}
 
 	public Long getId() {
@@ -56,12 +83,12 @@ public class Dinner implements Serializable{
 		this.id = id;
 	}
 
-	public DinnerDetails getDinnerDetails() {
-		return dinnerDetails;
+	public DinnerDetails getDinnerDetail() {
+		return dinnerDetail;
 	}
 
-	public void setDinnerDetails(DinnerDetails dinnerDetails) {
-		this.dinnerDetails = dinnerDetails;
+	public void setDinnerDetail(DinnerDetails dinnerDetail) {
+		this.dinnerDetail = dinnerDetail;
 	}
 
 	public LocalDate getAteAt() {
@@ -88,7 +115,13 @@ public class Dinner implements Serializable{
 		this.user = user;
 	}
 
+	public Set<Category> getCategories() {
+		return categories;
+	}
 
+	public void setCategories(Set<Category> categories) {
+		this.categories = categories;
+	}
 
 	@Override
 	public int hashCode() {
@@ -113,7 +146,7 @@ public class Dinner implements Serializable{
 		builder.append("Dinner [id=");
 		builder.append(id);
 		builder.append(", dinnerDetails=");
-		builder.append(dinnerDetails.getDinnerName());
+		builder.append(dinnerDetail.getDinnerName());
 		builder.append(", ateAt=");
 		builder.append(ateAt);
 		builder.append(", type=");

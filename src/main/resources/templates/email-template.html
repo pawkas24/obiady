@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	    
+	<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Obiadomat - lista zakupów</title>
+
+   </head>
+
+  <body>
+
+
+<div>
+    <div>
+      <h1>Lista zakupów</h1>
+      
+     <table style=width:700>
+  <thead>
+    <tr>
+      <th>L.p.</th>
+      <th>Składnik</th>
+      <th>Jedn. miary</th>
+      <th>Ilość</th>
+      <th>Dział</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="item, iStat : ${shoppingCart.shoppingItems}">
+    	<td th:text="${iStat.index + 1}">lp</td>
+    	<td style=width:50% th:text="${item.ingrDetail.name}">Składnik</td>
+    	<td th:text="${item.unit.label}">Jedn. miary</td>
+    	<td th:with="quantity=${item.quantity}" th:text="${quantity % 1 == 0? #numbers.formatDecimal(quantity, 1,0): quantity}">Składnik</td>
+    	<td th:text="${item.ingrDetail.shopSection.section}">Dział</td>
+    </tr>
+    
+  </tbody>
+</table>
+	<p th:text="${shoppingCart.note}">Notatka zakupowa</p>
+    </div>
+
+
+    </div>
+
+
+</body></html>

@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 
+import nz.net.ultraq.thymeleaf.LayoutDialect;
+
 @SpringBootApplication  // zastępuje @Configuration @EnableAutoConfiguration @ComponentScan
 
 public class Application {
@@ -16,6 +18,10 @@ public class Application {
     public Java8TimeDialect java8TimeDialect() {
         return new Java8TimeDialect();
     }
+	@Bean
+	public LayoutDialect layoutDialect() {
+	    return new LayoutDialect();
+	}
 	
     @PostConstruct
     void started() {

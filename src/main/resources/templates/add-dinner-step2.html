@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)https://getbootstrap.com/docs/4.0/examples/pricing/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragments/layout">
+
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://getbootstrap.com/docs/4.0/assets/img/favicons/favicon.ico">
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/pricing/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/css/pricing.css" th:href="@{/css/pricing.css}" rel="stylesheet">
+  <style></style></head>
+
+  <body>
+			<!-- header -->
+    <div th:replace="fragments/header::header">
+    </div>
+
+
+<div layout:fragment="content">
+<div class="pricing-header px-1 py-3 pt-md-4 pb-md-4 mx-auto text-center">
+      <h1 class="display-4">Dodaj obiad</h1>
+<br>
+
+<form action="#" th:action="@{/dinner}" th:object="${newDinner}" method="post">
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <label for="data">Data (*)</label>
+      <input class="form-control" type="date" name="ateAt"  th:field="*{ateAt}" th:value="${dinner.ateAt}"/>
+    </div>
+    <div class="form-group col-md-9">
+      <label for="nazwaobiadu">Nazwa obiadu (*)</label>
+       <input class="form-control" list="dinners" name="dinnerName" autocomplete="off" placeholder="" th:field="*{dinnerDetail.dinnerName}"/>
+      <datalist id="dinners">
+		<option th:each="dinner: ${dinners}" th:value="${dinner}"></option> <!-- .dinnerName -->
+		<!-- <option th:each="dinner: ${userDinners}" th:value="${dinner.dinnerDetails.dinnerName}"></option> -->
+	</datalist>
+       </div>
+  </div>
+	<div class="form-group">
+      <label for="komentarz">Komentarz</label>
+      <textarea class="form-control" rows="3" name="comment" placeholder="" th:field="*{comment}" ></textarea>
+    </div>
+    <p>Pola oznaczone gwiazdką (*) są wymagane.</p>
+    <br>
+    
+    <ul class="list-unstyled text-small">
+    
+    	<li th:each="category, iStat : ${categories}">
+    	<div class="wrapper">				
+    			<div class="first" th:if="${iStat.index < iStat.size / 2}">    <!-- ${#lists.size(categories)} -->
+    	<input type="checkbox" th:field="*{categories}" th:value="${category.id}" /> <!-- th:field odwołuje się do pola konkretnego obiektu Dinner -->
+    	<label th:text="${category.name}"></label>
+    			</div>
+    			<div class="first" th:if="${iStat.index >= iStat.size / 2}">   
+    	<input type="checkbox" th:field="*{categories}" th:value="${category.id}" /> <!-- th:field odwołuje się do pola konkretnego obiektu Dinner -->
+    	<label th:text="${category.name}"></label>
+    			</div>
+	</div>
+    	</li>
+    	
+    </ul>
+    
+    <div class="second">
+    <input th:if="${dinner.id > 0}" type="hidden" name="id" th:value="${dinner.id}"/><!-- test czy przekaze id podczas edycji -->
+ <button type="submit" class="btn btn-primary">Zapisz</button>
+ </div>
+ </form>
+
+<br>
+<br>
+
+ <!--<table class="table" th:if="${not #strings.isEmpty(foundCategory)}">
+  <thead>
+    <tr>
+      <th scope="col">Nazwa kategorii</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+		<td th:text="${foundCategory.name}">nazwa kategorii</td>
+    </tr>
+  </tbody>
+</table>-->
+
+
+
+<!--<p th:text="${#temporals.createToday()}">data:</p>--> 
+<br><br>
+
+
+
+<!--
+<form method="POST" th:action="@{/login}">
+<input type="submit" value="Wyloguj się"/>
+</form>
+-->
+
+</div>
+</div>  <!-- koniec div content -->
+
+
+
+			<!-- footer -->
+      <footer class="pt-4 my-md-5 pt-md-5 border-top" th:replace="fragments/footer::footer">
+      </footer>
+    
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./Pricing example for Bootstrap_files/jquery-3.2.1.slim.min.js.download" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="./Pricing example for Bootstrap_files/popper.min.js.download"></script>
+    <script src="./Pricing example for Bootstrap_files/bootstrap.min.js.download"></script>
+    <script src="./Pricing example for Bootstrap_files/holder.min.js.download"></script>
+    <script>
+      Holder.addTheme('thumb', {
+        bg: '#55595c',
+        fg: '#eceeef',
+        text: 'Thumbnail'
+      });
+    </script>
+  
+
+</body></html>

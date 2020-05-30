@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)https://getbootstrap.com/docs/4.0/examples/pricing/ -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="fragments/layout">
+
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://getbootstrap.com/docs/4.0/assets/img/favicons/favicon.ico">
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/pricing/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/css/pricing.css" th:href="@{/css/pricing.css}" rel="stylesheet">
+  <style></style>
+</head>
+
+  <body>
+			<!-- header -->
+    <div th:replace="fragments/header::header">
+    </div>
+
+
+
+
+<div layout:fragment="content">
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+      <h1 class="display-4">Statystyki</h1>
+      <p class="lead">Under construction</p>
+    </div>
+
+    <div class="container text-center">
+    
+    <form action="#" th:action="@{/stats}" method="get" >
+      	<p class="lead"> Wybierz 
+      		<select class="lead" id="option" th:name="option" name="option" >   <!-- th:field="${dayOptions}" -->
+      			<option class="lead" th:value="oldest" value="oldest" th:selected="${#httpServletRequest.getParameter('option')=='oldest'}">Najstarsze obiady</option>
+      			<option class="lead" th:value="categorySum" value="categorySum" th:selected="${#httpServletRequest.getParameter('option')=='categorySum'}">Najczęstsza kategoria</option>
+      			<option class="lead" th:value="nameSum" value="nameSum" th:selected="${#httpServletRequest.getParameter('option')=='nameSum'}">Najczęstsze obiady</option>
+			</select>
+			<button type="submit" class="btn btn-primary">Pokaż</button>
+		</p>
+    </form>
+    <br>
+    
+    
+  
+      
+      
+      <div class="card-deck mb-3 text-center">
+      
+      
+      <!-- tab 1 ilość wg kategorii TOP-->
+      <div class="container text-center" th:if="${not #lists.isEmpty(sumOfDinnersByCategory)}">
+     <!-- <h5>Suma obiadów wg kategorii:</h5>      -->
+  <table class="table table-hover"> <!-- th:if="${not #lists.isEmpty(topDinners)}"  -->
+  <thead>
+    <tr>
+      <th scope="col">Nazwa obiadu</th>
+      <th scope="col">Ilość</th>
+      <th scope="col">Średni odstęp (dni)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="result : ${sumOfDinnersByCategory}">
+    	<td th:text="${result.key}"></td>
+    	<td th:text="${result.value}"></td>
+    	<th:block th:with="avg=${intDays / result.value}">   <!-- th:if="${result.value != 0} dla kazdego td--> 
+    	<td th:text="${avg}">0</td>
+    	</th:block>
+    </tr>	
+  </tbody>
+</table>
+		</div>
+	
+	
+		<!-- najstarsze obiady -->
+		
+		<div class="container text-center" th:if="${not #maps.isEmpty(theOldest)}">
+		<!--<h5>Najstarsze obiady:</h5>-->
+<table class="table table-hover"> 
+  <thead>
+    <tr>
+      <th scope="col">Nazwa obiadu</th>
+      <th scope="col">Data</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="dinner : ${theOldest}">
+    	<td><a class="text-muted" th:href="@{/search/result(name=${dinner.key})}"><span th:text=${dinner.key}>nazwa obiadu</span></a></td>
+    	<td th:text="${dinner.value}"></td>
+    </tr>	
+  </tbody>
+</table>
+		</div>
+
+		<!-- licznik obiadów -->
+		
+		<div class="container text-center" th:if="${not #lists.isEmpty(countDinners)}">
+		<!--<h5>Suma obiadów wg nazwy:</h5>-->
+      <table class="table table-hover"> 
+  <thead>
+    <tr>
+      <th scope="col">Nazwa obiadu</th>
+      <th scope="col">Ilość</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="entry : ${countDinners}">
+    	<td><a class="text-muted" th:href="@{/search/result(name=${entry.key})}"><span th:text=${entry.key}>nazwa obiadu</span></a></td>
+		<td th:text="${entry.value}">Ilość</td>
+    </tr>
+  </tbody>
+</table>
+      </div>
+      
+      </div>
+</div>      
+      
+      
+      
+      
+      
+      
+     
+			<!-- footer -->
+      <footer th:replace="fragments/footer::footer">
+      </footer>
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./Pricing example for Bootstrap_files/jquery-3.2.1.slim.min.js.download" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="./Pricing example for Bootstrap_files/popper.min.js.download"></script>
+    <script src="./Pricing example for Bootstrap_files/bootstrap.min.js.download"></script>
+    <script src="./Pricing example for Bootstrap_files/holder.min.js.download"></script>
+    <script>
+      Holder.addTheme('thumb', {
+        bg: '#55595c',
+        fg: '#eceeef',
+        text: 'Thumbnail'
+      });
+    </script>
+  
+
+</body></html>
