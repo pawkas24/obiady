@@ -6,6 +6,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import constraint.group.HistoryValid;
 import obiady.Category;
 import obiady.Dinner;
 import obiady.DinnerDetailRepository;
@@ -32,6 +37,8 @@ public class DinnerService {
 	private final DinnerDetailRepository dinnerDetailRepo;
 	@Autowired
 	private CategoryRepository catRepo;
+	//@Autowired
+	//private Validator validator;
 	
 	@Autowired
 	public DinnerService(DinnerRepository dinnerRepo, UserService userService, DinnerDetailRepository dinnerDetailRepo) {
@@ -151,10 +158,15 @@ public class DinnerService {
 	public LocalDate getTheLatestDinnerDate(Long userId) {
 		LocalDate date = LocalDate.now();
 		Dinner dinner = dinnerRepo.findTopByUser_IdOrderByAteAtDesc(userId);
-		if(Objects.nonNull(dinner)) {
+		if(Objects.nonNull(dinner) && dinner.getAteAt().isBefore(date.plusDays(1))) {
 			date = dinner.getAteAt();
 		}
 		return date;
 	}
+	
+	/*public boolean validateHistory(Dinner dinner) {
+		Set<ConstraintViolation<Dinner>> errors = validator.validate(dinner, HistoryValid.class);
+		errors.
+	}*/
 }
 

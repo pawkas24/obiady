@@ -20,7 +20,12 @@
 
     <!-- Custom styles for this template -->
     <link href="../static/css/pricing.css" th:href="@{/css/pricing.css}" rel="stylesheet">
-  <style></style></head>
+  <style>
+  	.error {
+  	color: #ff0000;
+  	}
+  </style>
+  </head>
 
   <body>
 			<!-- header -->
@@ -35,13 +40,16 @@
 <p class="text-danger" th:if="${not #strings.isEmpty(nullDate)}" th:text="${nullDate}">Wybierz datę</p>
 
 <form action="#" th:action="@{/dinner/confirm}" th:object="${newDinner}" method="get">
+<small id="dateError" class="form-text text-muted" th:class="'error'" th:if="${#fields.hasErrors('global')}" th:errors="*{global}">cos zle wypelniles stary</small>
   <div class="form-row">
     <div class="form-group col-md-3">
-      <label for="data">Data (*)</label>
+        <label for="data">Data (*)</label>
  		<input class="form-control" type="date" name="ateAt"  th:field="*{ateAt}"/>
+ 		<small id="dateHelp" class="form-text text-muted" >Do dzisiejszej włącznie</small>
     </div>
     <div class="form-group col-md-9">
-      <label for="nazwaobiadu">Nazwa obiadu (*)</label>
+      
+      <label for="dinnerName">Nazwa obiadu (*)</label>
       <input class="form-control" list="dinners" name="dinnerName" autocomplete="off" placeholder="" th:field="*{dinnerDetail.dinnerName}"/>
       <datalist id="dinners">
 		<option th:each="dinner: ${dinners}" th:value="${dinner}"></option> <!-- .dinnerName -->

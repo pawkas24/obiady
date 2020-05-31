@@ -15,7 +15,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import constraint.group.HistoryValid;
+import constraint.group.PlannerValid;
 
 @Entity
 @Table
@@ -33,9 +38,10 @@ public class DinnerDetails implements Serializable{
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
-	@Size(min=2, max=50)
+	//@NotNull //(groups = {HistoryValid.class, PlannerValid.class})
+	//@Size(min=3, message = "{obiady.Dinner.dinnerDetail.dinnerName.Size}")
 	private String dinnerName;
-	@Column(length=3000)
+	//@Column (length=3000)   chyba nie ma co ograniczac
 	private String instruction;
 	private String url;
 	

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import constraint.group.PlannerValid;
 import obiady.Category;
 import obiady.CategoryDetails;
 import obiady.Dinner;
@@ -72,17 +74,27 @@ public class PlannerController {
 	
 	//request z drugiego kroku
 	@PostMapping  //w formularzu akcja=#, przegladarka wysle dane z formularza do tego samego kontrolera z ktorego przyszlo get
-							//@ModelAttribute only binds values from post parameters.
-	public String newDinnerSubmit(@Valid @ModelAttribute Dinner dinner, Model model, Errors errors, @RequestParam(value="id", required=false) String id,
+							//@ModelAttribute only binds values from post parameters. Bez ("newDinner") byl blad
+							//BindingResult lub Errors musi znajdować się bezpośrednio po parametrze reprezentującym atrybut modelu poddawany walidacji.
+	public String newDinnerSubmit(@Validated(PlannerValid.class) @ModelAttribute("newDinner") Dinner dinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id,
 			RedirectAttributes redirectAttr) { //był long id
 		if (errors.hasErrors()) {
+			//zrobic z tego metode bo to samo jest w showplanner, TO SAMO ZROBIC W FORM CONTROLLER
+			String username = userService.getUsername();
+			model.addAttribute("dinnerName", dinnerService.getUserDistinctDinners(username)); //dinnerDetailRepo.findAll())
+			//lista obiadow "przyszlych" (już dodanych do planera)
+			model.addAttribute("plannedList", dinnerService.getPlannedDinners(username));   //!!!!!!!!!!!!!!!przesniesc do plannerService
+			//lista id obiadow ktorych skladniki zostaly juz dodane do listy zakupow
+			List<Long> dinnerDetailsIds = shoppingService.getDistinctDinnerDetailsIds(username);
+			//dinnerDetailsIds.forEach(d->System.out.println("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL dinnerDetailsIds: " + d));
+			model.addAttribute("dinnerDetailsIds", dinnerDetailsIds);
 			return "planer";
 		}
 		//jeśli data jest przeszła
-		if(Objects.nonNull(dinner.getAteAt()) && dinner.getAteAt().isBefore(LocalDate.now())) {
-			redirectAttr.addFlashAttribute("wrongDate", "Wybrałeś datę przeszłą. Spróbuj ponownie.");
+		/*if(Objects.nonNull(dinner.getAteAt()) && dinner.getAteAt().isBefore(LocalDate.now())) {
+			redirectAttr.addFlashAttribute("wrongDate", "Wybierz datę przyszłą lub pozostaw pole puste.");
 			return "redirect:/planer";
-		}
+		}*/
 		
 		//dodanie obiadu do planera, ktory juz jest zapisany w bazie
 		if(!Objects.isNull(id)) {

@@ -11,11 +11,14 @@ import java.util.Random;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import constraint.group.HistoryValid;
 import obiady.Category;
 import obiady.CategoryDetails;
 import obiady.Dinner;
@@ -59,6 +63,8 @@ public class FormController {
 	private IngredientService ingrService;
 	
 	
+	
+	
 	@GetMapping  //@CookieValue(value = "dinnerName", defaultValue = "none") String dinnerName,  @CookieValue(value = "dinnerComment", defaultValue = "none") String dinnerComment
 	public String showAddDinnerForm(Model model) { 
 		//dodanie userów
@@ -67,7 +73,7 @@ public class FormController {
 		}
 		Dinner dinner = new Dinner();
 		
-		dinner.setAteAt(dinnerService.getTheLatestDinnerDate(userService.getUserId()));
+		dinner.setAteAt(dinnerService.getTheLatestDinnerDate(userService.getUserId()).plusDays(1));
 		
 		// ustawić domyślną datę na dzień po ostatnim obiedzie w bazie, a jeśli baza jest pusta, localDate.now
 		//dinner.setAteAt(LocalDate.of(1111,11, 11));
@@ -100,7 +106,8 @@ public class FormController {
 	//request z drugiego kroku
 	@PostMapping  //w formularzu akcja=#, przegladarka wysle dane z formularza do tego samego kontrolera z ktorego przyszlo get
 							//@ModelAttribute only binds values from post parameters.
-	public String newDinnerSubmit(@Valid @ModelAttribute Dinner newDinner, Model model, Errors errors, @RequestParam(value="id", required=false) String id) { //był long id
+							//BindingResult musi znajdować się bezpośrednio po parametrze reprezentującym atrybut modelu poddawany walidacji.
+	public String newDinnerSubmit(@Validated(HistoryValid.class) @ModelAttribute Dinner newDinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id) { //był long id
 		if (errors.hasErrors()) {
 			return "add-dinner";
 		}
@@ -131,11 +138,13 @@ public class FormController {
 	
 
 	@GetMapping("/confirm") //@GetMapping("/confirm")
-	private String showConfirmPage(@Valid @ModelAttribute("newDinner") Dinner dinner, Model model, @RequestParam(value="id", required=false) String id,
-			RedirectAttributes redirectAttr, Errors errors, HttpServletResponse response) throws IOException { 
+	//@Validated(HistoryValid.class)
+	private String showConfirmPage(@Validated(HistoryValid.class) @ModelAttribute("newDinner") Dinner dinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id,
+			RedirectAttributes redirectAttr) throws IOException { 
 		if (errors.hasErrors()) {
 			return "add-dinner";
 		}
+
 		//if (dinner.getAteAt().isEqual(LocalDate.of(1111,11, 11))) {
 			
 			//redirectAttr.addFlashAttribute("nullDate", "Wybierz datę");
