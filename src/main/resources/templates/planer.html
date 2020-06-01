@@ -47,18 +47,20 @@
 
 
 <form action="#" th:action="@{/planer}" th:object="${newDinner}" method="post">
-	<small id="dateError" class="form-text text-muted" th:class="'error'" th:if="${#fields.hasErrors('global')}" th:errors="*{global}">cos zle wypelniles stary</small>
+	
   <div class="form-row">
     <div class="form-group col-md-3">
       <label for="data">Data</label>
       <input class="form-control" type="date" name="ateAt"  th:field="*{ateAt}"/>
-      <small id="dateHelp" class="form-text text-muted" >Od dzisiejszej włącznie</small>
+      <small id="dateError" class="form-text text-muted" th:class="'error'" th:if="${#fields.hasErrors('ateAt')}" th:errors="*{ateAt}">blad daty</small>
+      <!--  <small id="dateHelp" class="form-text text-muted" >Od dzisiejszej włącznie</small>-->
       
     </div>
     <div class="form-group col-md-9">
       
       <label for="nazwaobiadu">Nazwa obiadu (*)</label>
       <input class="form-control" list="dinners" name="dinnerName" autocomplete="off" placeholder="" th:field="*{dinnerDetail.dinnerName}"/>
+      <small id="dateError" class="form-text text-muted" th:class="'error'" th:if="${#fields.hasErrors('dinnerDetail.dinnerName')}" th:errors="*{dinnerDetail.dinnerName}">blad nazwy</small>
       <datalist id="dinners">
 		<option th:each="dinner: ${dinnerName}" th:value="${dinner}"></option> <!-- .dinnerName -->
 	</datalist>

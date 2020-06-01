@@ -71,20 +71,13 @@ public class FormController {
 		if(dinnerRepo.count() == 0 ) {
 			addNewDinners();
 		}
+		User user = userService.getUser();
 		Dinner dinner = new Dinner();
 		
-		dinner.setAteAt(dinnerService.getTheLatestDinnerDate(userService.getUserId()).plusDays(1));
+		dinner.setAteAt(dinnerService.getTheLatestDinnerDate(user.getId()));
 		
-		// ustawić domyślną datę na dzień po ostatnim obiedzie w bazie, a jeśli baza jest pusta, localDate.now
-		//dinner.setAteAt(LocalDate.of(1111,11, 11));
-		/*if (!dinnerName.equals("none")) {
-			dinner.getDinnerDetail().setDinnerName(dinnerName);
-			dinner.setComment(dinnerComment);
-			model.addAttribute("nullDate", "Wybierz datę");
-		}*/
-		
-		String username = userService.getUsername();
-		List<Dinner> sortedDinners = dinnerRepo.findTop7ByUser_UsernameAndAteAtBeforeAndCategoriesIsNotNullOrderByAteAtDesc(username, LocalDate.now().plusDays(1L)); //
+
+		List<Dinner> sortedDinners = dinnerRepo.findTop7ByUser_UsernameAndAteAtBeforeAndCategoriesIsNotNullOrderByAteAtDesc(user.getUsername(), LocalDate.now()); //
 		
 		//dodanie do modelu listy obiadow danego uzytkowanika
 		model.addAttribute("userDinners", sortedDinners);  //??????????????? to nie to samo co niżej "dinners" ???
@@ -96,8 +89,8 @@ public class FormController {
 		//dodanie do modelu pustego obiektu Dinners w ktorym zostanie zapisana nazwa obiadu, id bedzie dodawane oddzielnie, po wyszukaniu, zeby nie bylo duplikatów
 		model.addAttribute("dinnerDetail", new DinnerDetails());   //"dinner"
 		//dodanie do modelu unikalnych nazw obiadu z Dinners
-		model.addAttribute("dinners", dinnerService.getUserDistinctDinners(username));
-		model.addAttribute("username", username);
+		model.addAttribute("dinners", dinnerService.getUserDistinctDinners(user.getUsername()));
+		//model.addAttribute("username", username);
 
 		//przygotowanie i umieszczenie typów posiłków w modelu
 		return "add-dinner"; //"add-dinner" 
@@ -139,9 +132,29 @@ public class FormController {
 
 	@GetMapping("/confirm") //@GetMapping("/confirm")
 	//@Validated(HistoryValid.class)
-	private String showConfirmPage(@Validated(HistoryValid.class) @ModelAttribute("newDinner") Dinner dinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id,
+	private String showConfirmPage(@Validated(HistoryValid.class) @ModelAttribute("newDinner") Dinner newDinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id,
 			RedirectAttributes redirectAttr) throws IOException { 
 		if (errors.hasErrors()) {
+			User user = userService.getUser();
+			Dinner dinner = new Dinner();
+			
+			dinner.setAteAt(dinnerService.getTheLatestDinnerDate(user.getId()));
+			
+			List<Dinner> sortedDinners = dinnerRepo.findTop7ByUser_UsernameAndAteAtBeforeAndCategoriesIsNotNullOrderByAteAtDesc(user.getUsername(), LocalDate.now()); //
+			
+			//dodanie do modelu listy obiadow danego uzytkowanika
+			model.addAttribute("userDinners", sortedDinners);  //??????????????? to nie to samo co niżej "dinners" ???
+			//dodanie do modelu pustego obiektu typu dinner, który przyjmie dane z formularza
+					
+			model.addAttribute("newDinner", dinner);
+			//dodanie do modelu dat z istniejących w bd obiadów
+			//model.addAttribute("filledDates", filledDates);
+			//dodanie do modelu pustego obiektu Dinners w ktorym zostanie zapisana nazwa obiadu, id bedzie dodawane oddzielnie, po wyszukaniu, zeby nie bylo duplikatów
+			model.addAttribute("dinnerDetail", new DinnerDetails());   //"dinner"
+			//dodanie do modelu unikalnych nazw obiadu z Dinners
+			model.addAttribute("dinners", dinnerService.getUserDistinctDinners(user.getUsername()));
+			//model.addAttribute("username", username);
+
 			return "add-dinner";
 		}
 
@@ -162,19 +175,19 @@ public class FormController {
 		//System.out.println("11111111111111111111111111111111 id: " +id);
 		//jesli edytuje to znajdz stary dinner
 		if(!Objects.isNull(id)) {
-			dinner = dinnerRepo.getOne(Long.parseLong(id));
+			newDinner = dinnerRepo.getOne(Long.parseLong(id));
 		}
 		
 		List<Category> categories = catRepo.findAll();
 		//nie wykrywac kategorii jesli id !null, zostawić starą
-		Category foundCategory = findCategory(dinner);
-		dinner.addCategory(foundCategory);
+		Category foundCategory = findCategory(newDinner);
+		newDinner.addCategory(foundCategory);
 				
 		model.addAttribute("categories", categories);
 		model.addAttribute("foundCategory", foundCategory);
 		
 		model.addAttribute("dinners", dinnerService.getUserDistinctDinners(userService.getUsername()));
-		model.addAttribute("newDinner", dinner);
+		model.addAttribute("newDinner", newDinner);
 		return "add-dinner-step2";
 	}
 	

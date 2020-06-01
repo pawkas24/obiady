@@ -38,14 +38,12 @@ public class DinnerDetails implements Serializable{
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
-	//@NotNull //(groups = {HistoryValid.class, PlannerValid.class})
-	//@Size(min=3, message = "{obiady.Dinner.dinnerDetail.dinnerName.Size}")
+	@NotBlank (groups = {HistoryValid.class, PlannerValid.class}, message = "{obiady.DinnerDetails.dinnerName.NotBlank}")
+	//@Size(min=3, message = "{obiady.DinnerDetail.dinnerName.Size}", groups = {HistoryValid.class, PlannerValid.class})
 	private String dinnerName;
 	//@Column (length=3000)   chyba nie ma co ograniczac
 	private String instruction;
 	private String url;
-	
-
 	
 	@OneToMany(mappedBy="dinnerDetail", cascade = CascadeType.ALL, orphanRemoval = true)
 	List<Ingredient> ingredients = new ArrayList<>();

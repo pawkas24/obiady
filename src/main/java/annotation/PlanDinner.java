@@ -15,7 +15,7 @@ import constraint.group.PlannerValid;
 @Constraint(validatedBy = {PlanDinnerValidator.class})
 public @interface PlanDinner {
 
-	  String message();
+	  String message() default "{obiady.Dinner.PlanDinner}";
 	  Class<?>[] groups() default {};
 	  Class<? extends Payload>[] payload() default {};
 }

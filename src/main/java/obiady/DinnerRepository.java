@@ -50,6 +50,6 @@ public interface DinnerRepository extends JpaRepository<Dinner, Long> {
 	//to samo co wyzej tylko samo categories is null
 	List<Dinner> findByUser_UsernameAndCategoriesIsNullOrderByAteAtAsc(String username); // now-1 day, i dodatkowy warunek category = null
 	// znajdz datę najświeższego obiadu w bazie
-	Dinner findTopByUser_IdOrderByAteAtDesc(Long userId);
+	Dinner findTopByUser_IdAndAteAtBeforeOrderByAteAtDesc(Long userId, LocalDate ateAt);
 
 }

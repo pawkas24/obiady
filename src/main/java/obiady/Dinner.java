@@ -1,4 +1,4 @@
-package obiady;
+	package obiady;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -17,7 +17,10 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,7 +33,7 @@ import constraint.group.PlannerValid;
 
 @Entity
 @Table
-@PlanDinner(message = "Błędna data lub nazwa obiadu", groups = {HistoryValid.class, PlannerValid.class})
+//@PlanDinner(groups = {HistoryValid.class, PlannerValid.class})
 public class Dinner implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
@@ -40,11 +43,14 @@ public class Dinner implements Serializable{
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Valid
 	private DinnerDetails dinnerDetail;  
 	
 	@DateTimeFormat(pattern="yyyy-MM-dd")
-	//@PastOrPresent(message = "{obiady.Dinner.ateAt.PastOrPresent}", groups = {HistoryValid.class})//(message = "Podaj datę przeszłą lub dzisiejszą.", groups= {HistoryValid.class})
+	@NotNull(message = "{obiady.Dinner.ateAt.PastOrPresent}", groups = {HistoryValid.class})
+	@PastOrPresent(message = "{obiady.Dinner.ateAt.PastOrPresent}", groups = {HistoryValid.class})
 	//@FutureOrPresentOrNull(message = "{obiady.Dinner.ateAt.FutureOrPresentOrNull}", groups = {PlannerValid.class})
+	@FutureOrPresent(message = "{obiady.Dinner.ateAt.FutureOrPresent}", groups = {PlannerValid.class})
 	private LocalDate ateAt;
 
 	@ManyToMany(cascade= {CascadeType.PERSIST, CascadeType.MERGE})

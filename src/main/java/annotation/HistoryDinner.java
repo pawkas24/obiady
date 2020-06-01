@@ -15,7 +15,7 @@ import constraint.group.HistoryValid;
 @Constraint(validatedBy = {HistoryDinnerValidator.class})
 public @interface HistoryDinner {
 
-	  String message();
+	  String message() default "{}";
 	  Class<?>[] groups() default {};
 	  Class<? extends Payload>[] payload() default {};
 }

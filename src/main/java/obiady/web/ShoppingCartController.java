@@ -107,7 +107,7 @@ public class ShoppingCartController {
 			shoppingCart = new ShoppingCart(user);
 			shoppingService.saveShoppingCart(shoppingCart);
 		}
-		//z random przekazuje randomdetails.dinnerName, trzeba go przerobic na dinnerDetailId
+		
 		
 		DinnerDetails dinnerDetail = new DinnerDetails();
 		if(Objects.nonNull(dinnerDetailId) || Objects.nonNull(randomDinnerName)) {
@@ -151,9 +151,10 @@ public class ShoppingCartController {
 			}else {
 				
 			}*/
+			if(randomDinnerName != null) {
+				return "redirect:/shopping-cart";
+			}
 			return "redirect:/planer";
-			
-			
 			//}
 		}else {
 			//jesli skladnik nie pochodzi z przepisu

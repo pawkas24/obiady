@@ -27,8 +27,8 @@ public class RandomService {
 	
 	
 	//zamienic user na username
-	public void saveRandomDinnerAndDateToTheModel(Model model, String category) {
-		User user = userService.findByUsername(userService.getUsername()); //przekazac usera jako arg metody a wyszukać go w randomController? 
+	public void saveRandomDinnerAndDateToTheModel(Model model, String category, User user) {
+		 
 		
 		//jeśli jest przynajmniej jeden obiad w danej kategorii, lub wszystkie
 		if(dinnerService.getNumberOfUserDinners(user.getUsername(), category) > 0) {

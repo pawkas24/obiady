@@ -34,17 +34,17 @@
 <div layout:fragment="content">
     <div class="pricing-header px-1 py-3 pt-md-5 pb-md-4 mx-auto text-center" th:if="${#strings.isEmpty(categoryWithoutDinners)}">
       <!--  <h1 class="display-4">Wylosuj</h1>-->
-      <p class="lead">Sierotka Marysia wylosowała Ci na obiad z kategorii <span class="text-primary" th:text="${category}">Sierotka</span></p> <!-- th:if="${not #lists.isEmpty(randomDinner)}" -->
-      <br>
-       <a class="text-muted" th:href="@{/search/result(name=${randomDinner.dinnerName})}"><h1 class="display-4" th:text="${randomDinner.dinnerName}">obiad</h1></a>
+      <p class="lead">Sierotka Marysia wylosowała Ci na obiad z kategorii <span class="badge badge-secondary" th:text="${category}">Sierotka</span></p> <!-- th:if="${not #lists.isEmpty(randomDinner)}" -->
+       <a class="badge badge-light" th:href="@{/search/result(name=${randomDinner.dinnerName})}"><h3><span th:text="${randomDinner.dinnerName}">obiad</span></h3></a>
        <br>
+   <br>
        <p class="lead">Pojawił się na Twoim stole ostatnio  <span th:text="${daysSinceHavingRandomDinner}"></span> dni temu.</p>
-        <br>
+        
       <form action="#" th:action="@{/shopping-cart/add-shopping-item}" method="post">
 				<input type="hidden" name="randomDinnerName" th:value="${randomDinner.dinnerName}"/>
-				<button type="submit" class="btn btn-primary btn-sm">Dodaj do listy zakupów</button>
+				<button type="submit" class="btn btn-primary">Dodaj do listy zakupów</button>
 			</form>
-      
+      <br>
       
       <form action="#" th:action="@{/random}" method="get" >
       	<p class="lead">Wybierz inną kategorię

@@ -157,16 +157,12 @@ public class DinnerService {
 	
 	public LocalDate getTheLatestDinnerDate(Long userId) {
 		LocalDate date = LocalDate.now();
-		Dinner dinner = dinnerRepo.findTopByUser_IdOrderByAteAtDesc(userId);
+		Dinner dinner = dinnerRepo.findTopByUser_IdAndAteAtBeforeOrderByAteAtDesc(userId, LocalDate.now().plusDays(1));
 		if(Objects.nonNull(dinner) && dinner.getAteAt().isBefore(date.plusDays(1))) {
-			date = dinner.getAteAt();
+			date = dinner.getAteAt().plusDays(1);
 		}
 		return date;
 	}
 	
-	/*public boolean validateHistory(Dinner dinner) {
-		Set<ConstraintViolation<Dinner>> errors = validator.validate(dinner, HistoryValid.class);
-		errors.
-	}*/
 }
 

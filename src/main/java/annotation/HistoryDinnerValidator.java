@@ -15,6 +15,9 @@ public class HistoryDinnerValidator implements ConstraintValidator<HistoryDinner
 		if(dinner.getDinnerDetail().getDinnerName().isBlank()) {
 			return false;
 		}
+		if(dinner.getAteAt() == null) {
+			return false;
+		}
 		return dinner.getAteAt().isBefore(LocalDate.now().plusDays(1));
 	}
 

@@ -1,15 +1,11 @@
 package obiady.service;
 
-import java.time.LocalDate;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import obiady.Dinner;
-import obiady.RandomDetails;
 import obiady.User;
 import obiady.UserRepository;
 import obiady.UserRole;
@@ -17,8 +13,6 @@ import obiady.repository.UserRoleRepository;
 
 @Service
 public class UserService {
-	//@Autowired
-	//UserRepository userRepo;
 
 	private static final String DEFAULT_ROLE = "ROLE_USER";
 	private UserRepository userRepository;
@@ -52,10 +46,10 @@ public class UserService {
 		return userRepository.findByUsername(username);
 	}
 	
-	/*public User getUser() {
+	public User getUser() {
 		String username = getUsername();
 	return userRepository.findByUsername(username);
-	}*/
+	}
 	//pobiera username zalogowanego usera
 	public String getUsername() {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -69,7 +63,6 @@ public class UserService {
 	public Long getUserId() {
 		String username = getUsername();
 		User user = userRepository.findByUsername(username);
-		System.out.println("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu user ID: " + user.getId());
 		return user.getId();
 		
 	}
