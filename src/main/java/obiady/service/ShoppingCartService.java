@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 
 import obiady.Dinner;
 import obiady.DinnerDetails;
@@ -125,5 +126,8 @@ public class ShoppingCartService {
 			}
 		}
 	}
-	
+	public void getNumberOfItemsLeftToBuy(Model model, Long userId) {
+		long numberOfShoppingItemsLeftToBuy = shoppingItemRepo.countByShoppingCart_User_IdAndIsBought(userId, false);
+		model.addAttribute("numberOfItemsLeftToBuy", numberOfShoppingItemsLeftToBuy);
+	}
 }

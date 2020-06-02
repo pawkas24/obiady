@@ -22,7 +22,11 @@
     <link href="../static/css/pricing.css" th:href="@{/css/pricing.css}" rel="stylesheet">
     
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-  <style></style>
+  <style>
+  	.error {
+  	color: #ff0000;
+  	}
+  </style>
 </head>
 
   <body>
@@ -46,7 +50,7 @@
     <input  list="dinners" class="form-control" placeholder="Wyszukaj przepis" name="dinnerName" th:value="${dinnerName}"/>
     
     <datalist id="dinners">
-		<option th:each="dinner: ${dinners}" th:value="${dinner}"></option> 
+		<option class="form-control" th:each="dinner: ${dinners}" th:value="${dinner}"></option> 
 	</datalist>
 	
     <div class="input-group-append">
@@ -61,7 +65,7 @@
   
   
 
-  
+
   
   
   
@@ -93,9 +97,10 @@
 	<h6 th:text="${dinnerDetailConfirmation}" class="text-success">Potwierdzenie zapisu.</h6>
 </div>
 
-<table class="table table-sm" th:if="${not #lists.isEmpty(dinnerDetail.ingredients)}"> 
+<table class="table table-hover table-sm" th:if="${not #lists.isEmpty(dinnerDetail.ingredients)}"> 
   <thead>
     <tr>
+      <th>L.p.</th>
       <th scope="col">Składnik</th>
       <th scope="col">Jedn. miary</th>
       <th scope="col">Ilość</th>
@@ -105,8 +110,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr th:each="ingredient : ${dinnerDetail.ingredients}">
-    
+    <tr th:each="ingredient, iStat: ${dinnerDetail.ingredients}">
+    	<td th:text="${iStat.index + 1}">lp</td>
     	<td th:text="${ingredient.ingredientDetail.name}">składnik</td>
 		<td th:text="${ingredient.unit.label}">jedn.miary</td>
 		<td th:with="quantity=${ingredient.quantity}" th:text="${quantity % 1 == 0? #numbers.formatDecimal(quantity, 1,0): quantity}">ilość</td>             <!-- <td th:text="${ingredient.quantity}">ilość</td> -->
@@ -132,14 +137,20 @@
       
     
       <!-- formularz na składniki -->
+      
+      
  <p align="left" class = "text-info">Składniki:</p>
 <form action="#" th:action="@{/recipes/ingredient}" th:object="${newIngredient}" method="post" >
+<ul th:if="${#fields.hasErrors('*')}">
+  <li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
+</ul>
 <input type="hidden" th:value="${dinnerDetail.dinnerName}" th:field="*{dinnerDetail.dinnerName}" /> 
 
 <div class="form-row">
     <div class="form-group col-md-6">
       <label for="ingredient">Nazwa (*)</label>
       <input class="form-control" list="ingredients" type="text" name="name"  th:field="*{ingredientDetail.name}" />
+      <small id="ingrNameError" class="form-text text-muted" th:class="'error'" th:if="${#fields.hasErrors('ingredientDetail.name')}" th:errors="*{ingredientDetail.name}">blad nazwy</small>
       <datalist id="ingredients">
 		<option th:each="ingr: ${ingredients}" th:value="${ingr}"></option> <!-- .dinnerName -->
 	  </datalist>
@@ -147,22 +158,20 @@
     <div class="form-group col-md-2">
       <label for="unit">Jedn. miary</label>  
       	 
-       	<select class="lead" id="units" th:name="units" name="units" th:field="*{unit}"> 
-      		
+       	<select class="form-control" id="units" th:name="units" name="units" th:field="*{unit}"> 
       		 	<!-- <option value=""> -- </option> -->
-				<option th:each="unit: ${T(obiady.Utility.Unit).values()}" th:value="${unit}" th:text="${unit.label}"/>
-			
+				<option class="form-control" th:each="unit: ${T(obiady.Utility.Unit).values()}" th:value="${unit}" th:text="${unit.label}"/>
 		</select>
 		
     </div>
     <div class="form-group col-md-2">
       <label for="quantity">Ilość</label>
-      <input class="form-control" type="number" step="0.01" name="quantity"  th:field="*{quantity}" placeholder="1"/>
+      <input class="form-control" type="number" step="0.01" name="quantity"  th:field="*{quantity}"/>
      </div>
      <div class="form-group col-md-2"> 	
       	<label for="ingredient">Dział (*)</label>
-      		<select class="lead" id="shopSections" th:name="shopSections" name="shopSections" th:field="*{ingredientDetail.shopSection.section}"> 
-      		<option th:each="section: ${shopSections}" th:value="${section}" th:text="${section.section}"/>
+      		<select class="form-control" id="shopSections" th:name="shopSections" name="shopSections" th:field="*{ingredientDetail.shopSection.id}"> <!-- .section --> 
+      		<option th:each="section: ${shopSections}" th:value="${section.id}" th:text="${section.section}"/>
       		</select>
     </div>
   </div>

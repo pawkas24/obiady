@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +22,7 @@ import obiady.CategoryDetails;
 import obiady.Dinner;
 import obiady.DinnerRepository;
 import obiady.ShoppingCart;
+import obiady.User;
 import obiady.DinnerDetails;
 import obiady.DinnerDetailRepository;
 import obiady.repository.CategoryRepository;
@@ -56,16 +55,19 @@ public class PlannerController {
 	@GetMapping
 	public String showPlanerForm(Model model) { 
 
-		String username = userService.getUsername();
+		User user = userService.getUser();
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
+		
 		//dodanie do modelu pustego obiektu typu dinner i dinners na nazwe obiadu, który przyjmie dane z formularza
 		model.addAttribute("newDinner", new Dinner());
 		model.addAttribute("dinnerDetail", new DinnerDetails());   //"dinner"
 		//dodanie do modelu unikalnych nazw obiadu z Dinners
-		model.addAttribute("dinnerName", dinnerService.getUserDistinctDinners(username)); //dinnerDetailRepo.findAll())
+		model.addAttribute("dinnerName", dinnerService.getUserDistinctDinners(user.getUsername())); //dinnerDetailRepo.findAll())
 		//lista obiadow "przyszlych" (już dodanych do planera)
-		model.addAttribute("plannedList", dinnerService.getPlannedDinners(username));   //!!!!!!!!!!!!!!!przesniesc do plannerService
+		model.addAttribute("plannedList", dinnerService.getPlannedDinners(user.getUsername()));   //!!!!!!!!!!!!!!!przesniesc do plannerService
 		//lista id obiadow ktorych skladniki zostaly juz dodane do listy zakupow
-		List<Long> dinnerDetailsIds = shoppingService.getDistinctDinnerDetailsIds(username);
+		List<Long> dinnerDetailsIds = shoppingService.getDistinctDinnerDetailsIds(user.getUsername());
 		//dinnerDetailsIds.forEach(d->System.out.println("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL dinnerDetailsIds: " + d));
 		model.addAttribute("dinnerDetailsIds", dinnerDetailsIds);
 		
@@ -78,14 +80,24 @@ public class PlannerController {
 							//BindingResult lub Errors musi znajdować się bezpośrednio po parametrze reprezentującym atrybut modelu poddawany walidacji.
 	public String newDinnerSubmit(@Validated(PlannerValid.class) @ModelAttribute("newDinner") Dinner dinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id,
 			RedirectAttributes redirectAttr) { //był long id
+		
+		User user = userService.getUser();
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
+		
 		if (errors.hasErrors()) {
-			//zrobic z tego metode bo to samo jest w showplanner, TO SAMO ZROBIC W FORM CONTROLLER
-			String username = userService.getUsername();
-			model.addAttribute("dinnerName", dinnerService.getUserDistinctDinners(username)); //dinnerDetailRepo.findAll())
+			//badge koszyka pokazujace ilosc skladnikow w koszyku
+			shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
+			
+			//dodanie do modelu pustego obiektu typu dinner i dinners na nazwe obiadu, który przyjmie dane z formularza
+			model.addAttribute("newDinner", new Dinner());
+			model.addAttribute("dinnerDetail", new DinnerDetails());   //"dinner"
+			//dodanie do modelu unikalnych nazw obiadu z Dinners
+			model.addAttribute("dinnerName", dinnerService.getUserDistinctDinners(user.getUsername())); //dinnerDetailRepo.findAll())
 			//lista obiadow "przyszlych" (już dodanych do planera)
-			model.addAttribute("plannedList", dinnerService.getPlannedDinners(username));   //!!!!!!!!!!!!!!!przesniesc do plannerService
+			model.addAttribute("plannedList", dinnerService.getPlannedDinners(user.getUsername()));   //!!!!!!!!!!!!!!!przesniesc do plannerService
 			//lista id obiadow ktorych skladniki zostaly juz dodane do listy zakupow
-			List<Long> dinnerDetailsIds = shoppingService.getDistinctDinnerDetailsIds(username);
+			List<Long> dinnerDetailsIds = shoppingService.getDistinctDinnerDetailsIds(user.getUsername());
 			//dinnerDetailsIds.forEach(d->System.out.println("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL dinnerDetailsIds: " + d));
 			model.addAttribute("dinnerDetailsIds", dinnerDetailsIds);
 			return "planer";
@@ -98,7 +110,8 @@ public class PlannerController {
 		
 		//dodanie obiadu do planera, ktory juz jest zapisany w bazie
 		if(!Objects.isNull(id)) {
-			
+			//badge koszyka pokazujace ilosc skladnikow w koszyku
+			shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
 			Dinner oldDinner = dinnerRepo.getOne(Long.parseLong(id));
 			oldDinner.setAteAt(dinner.getAteAt());
 			//oldDinner.setCategories(dinner.getCategories());
@@ -110,6 +123,9 @@ public class PlannerController {
 			System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx obiad przekazany z formularza: " + dinner.getDinnerDetail().getDinnerName() + ", " + dinner.getComment());*/
 			return "redirect:/planer";
 		}else {
+			//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
+		
 		setDinnerDetails(dinner);
 		dinnerService.saveDinner(dinner);//dopiero po tym mozna pobrac dinner id
 		//System.out.println("11111111111111111111111111111111111111111111111111111111 nowy obiad: " + dinner.getDinnerDetail().getDinnerName() + ", " + dinner.getAteAt());
@@ -121,21 +137,15 @@ public class PlannerController {
 	
 	@GetMapping("/edit")
 	private String showEditDinner(@ModelAttribute Dinner dinner, Model model, @RequestParam String id) { //long id
+		User user = userService.getUser();
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
 		//warunek do edycji, dinner z modelu podmienia na dinner pobrany z bd
-		//System.out.println("1111111111111111111111111111111111111111111111111111111111111111111111111111111111 id: " +id);
 		dinner = dinnerRepo.getOne(Long.parseLong(id));
 		//setDinnerDetails(dinner);
 		//dinnerService.saveDinner(dinner);//dopiero po tym mozna pobrac dinner id
-				System.out.println("2222222222222222222222222222222222222222222222222222  getMappint /edit " + dinner.getDinnerDetail().getDinnerName() +", " + dinner.getComment());
-		//List<Category> categories = catRepo.findAll();
-		
-		//Category foundCategory = findCategory(dinner);
-		//dinner.addCategory(foundCategory);
-		
-		//model.addAttribute("categories", categories);
-		//model.addAttribute("foundCategory", foundCategory);
-		
-		model.addAttribute("dinners", dinnerService.getUserDistinctDinners(userService.getUsername()));
+
+		model.addAttribute("dinners", dinnerService.getUserDistinctDinners(user.getUsername()));
 		model.addAttribute("newDinner", dinner);
 		return "planer2";
 	}
@@ -145,15 +155,16 @@ public class PlannerController {
 	private String showDeteleDinner(@RequestParam long dinnerId, Model model, RedirectAttributes redirectAttr) { //zmienic na string id
 		//usunąć składniki danego obiadu z koszyka zakupów jeśli się w nim znajdują
 		//pobrać obiad
+		User user = userService.getUser();
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
 		Dinner dinner = dinnerService.getOneDinner(dinnerId);
-		ShoppingCart shoppingCart = shoppingCartService.findByUserId(dinner.getUser().getId());
+		ShoppingCart shoppingCart = shoppingCartService.findByUserId(user.getId());
 		DinnerDetails dinnerDetail = dinner.getDinnerDetail();
-		shoppingService.removeBidirectionalAssociation(dinnerDetail, shoppingCart, dinner.getUser().getId());
+		shoppingService.removeBidirectionalAssociation(dinnerDetail, shoppingCart, user.getId());
 		
 		dinnerRepo.deleteById(dinnerId);
-		//model.addAttribute("dinnerDeleteConfirmation", "Obiad został usunięty z powodzeniem.");
 		redirectAttr.addFlashAttribute("dinnerDeleteConfirmation", "Obiad został usunięty z powodzeniem.");
-		//System.out.println("1111111111111111111111111 " + model.getAttribute("dinnerDeleteConfirmation"));
 		return "redirect:/planer";
 	}
 	
@@ -204,17 +215,8 @@ public class PlannerController {
 					//System.out.println("########## znaleziona kategoria: " + category.getName());
 					return foundCategory;
 				}//nie moge dac else bo już w pierwszym przypadku gdy nie znajdzie da bezmiesny
-				
-				//return foundCategory;
 			}
 		}
-		
-		/*System.out.println("aaaaaaaaaaaaaaaaa kategoria przed if: " + foundCategory.getName());
-		if(Objects.isNull(foundCategory)) {
-			foundCategory = catRepo.getOne(1L);
-			System.out.println("bbbbbbbbbbbbbbbbb  w srodku if kategoria 1L " + catRepo.getOne(1L));
-		}
-		System.out.println("############## kategoria po warunku if, powinna byc bezmiesny "+ foundCategory.getName());*/
 		return foundCategory;
 	}
 }

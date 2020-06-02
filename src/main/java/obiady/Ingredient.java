@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 
 import obiady.Utility.Unit;
 
@@ -27,6 +28,7 @@ public class Ingredient {
 	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Valid
 	private IngredientDetails ingredientDetail;
 	
 	private double quantity;

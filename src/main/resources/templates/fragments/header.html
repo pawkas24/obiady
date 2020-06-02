@@ -10,7 +10,7 @@
         <a class="p-2 text-dark" href="#" th:href="@{/random}">Wylosuj</a>
         <a class="p-2 text-dark" href="#" th:href="@{/history}">Historia</a>
         <a class="p-2 text-dark" href="#" th:href="@{/recipes}">Twoje przepisy</a>
-        <a class="p-2 text-dark" href="#" th:href="@{/shopping-cart}">Koszyk</a>
+        <a class="p-2 text-dark" href="#" th:href="@{/shopping-cart}">Koszyk <span class="badge badge-primary" th:if="${numberOfItemsLeftToBuy !=0}" th:text="${(numberOfItemsLeftToBuy)}">ilosc</span></a>
       </nav>
       
       	<div sec:authorize="!isAuthenticated()">

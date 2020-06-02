@@ -3,23 +3,17 @@ package obiady.web;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import javax.validation.Validator;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,11 +31,11 @@ import obiady.IngredientDetails;
 import obiady.User;
 import obiady.DinnerDetails;
 import obiady.DinnerDetailRepository;
-import obiady.UserRepository;
 import obiady.Utility.Unit;
 import obiady.repository.CategoryRepository;
 import obiady.service.DinnerService;
 import obiady.service.IngredientService;
+import obiady.service.ShoppingCartService;
 import obiady.service.UserService;
 
 @Controller
@@ -61,6 +55,8 @@ public class FormController {
 	private CategoryRepository catRepo;
 	@Autowired
 	private IngredientService ingrService;
+	@Autowired
+	private ShoppingCartService shoppingService;
 	
 	
 	
@@ -73,6 +69,8 @@ public class FormController {
 		}
 		User user = userService.getUser();
 		Dinner dinner = new Dinner();
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
 		
 		dinner.setAteAt(dinnerService.getTheLatestDinnerDate(user.getId()));
 		
@@ -100,11 +98,15 @@ public class FormController {
 	@PostMapping  //w formularzu akcja=#, przegladarka wysle dane z formularza do tego samego kontrolera z ktorego przyszlo get
 							//@ModelAttribute only binds values from post parameters.
 							//BindingResult musi znajdować się bezpośrednio po parametrze reprezentującym atrybut modelu poddawany walidacji.
-	public String newDinnerSubmit(@Validated(HistoryValid.class) @ModelAttribute Dinner newDinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id) { //był long id
+							//controller is looking for "customerForm" (class name) not "form" (the variable name) dlatego potrzebne modelAttribute("newDinner")
+	public String newDinnerSubmit(@Validated(HistoryValid.class) @ModelAttribute("newDinner") Dinner newDinner, Errors errors, Model model, @RequestParam(value="id", required=false) String id) { //był long id
 		if (errors.hasErrors()) {
 			return "add-dinner";
 		}
 		User user = userService.getUserById(userService.getUserId());
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
+		
 		//w dinner_category zapisac dinner id i category id
 		if(!Objects.isNull(id)) {
 			
@@ -136,6 +138,8 @@ public class FormController {
 			RedirectAttributes redirectAttr) throws IOException { 
 		if (errors.hasErrors()) {
 			User user = userService.getUser();
+			//badge koszyka pokazujace ilosc skladnikow w koszyku
+			shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
 			Dinner dinner = new Dinner();
 			
 			dinner.setAteAt(dinnerService.getTheLatestDinnerDate(user.getId()));
@@ -195,6 +199,9 @@ public class FormController {
 	private String showEditDinner(Model model, @ModelAttribute Dinner dinner, @RequestParam String id) { //bez @ModelAttribute Dinner dinner wyskakiwal blad w add-dinner-step2 wiersz40
 		//warunek do edycji, dinner z modelu podmienia na dinner pobrany z bd
 		//System.out.println("1111111111111111111111111111111111111111111111111111111111111111111111111111111111 id: " +id);
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		User user = userService.getUser();
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
 		dinner = dinnerRepo.getOne(Long.parseLong(id));
 				System.out.println("22222222222222222222222222222222222222222222222222222222222222222222222222222222222222dinnerdetail dinnername i id " + dinner.getDinnerDetail().getDinnerName() +", " + dinner.getDinnerDetail().getId());
 		List<Category> categories = catRepo.findAll();
@@ -205,7 +212,7 @@ public class FormController {
 		model.addAttribute("categories", categories);
 		model.addAttribute("foundCategory", foundCategory);
 		
-		model.addAttribute("dinners", dinnerService.getUserDistinctDinners(userService.getUsername()));
+		model.addAttribute("dinners", dinnerService.getUserDistinctDinners(user.getUsername()));
 		model.addAttribute("newDinner", dinner);
 		return "add-dinner-step2";
 	}
@@ -213,6 +220,9 @@ public class FormController {
 	
 	@PostMapping("/delete")
 	private String showDeteleDinner(@RequestParam long id, Model model, RedirectAttributes redirectAttr) {
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		
+		shoppingService.getNumberOfItemsLeftToBuy(model, userService.getUserId());
 		dinnerRepo.deleteById(id);
 		//model.addAttribute("dinnerDeleteConfirmation", "Obiad został usunięty z powodzeniem.");
 		redirectAttr.addFlashAttribute("dinnerDeleteConfirmation", "Obiad został usunięty z powodzeniem.");
@@ -222,6 +232,8 @@ public class FormController {
 	
 	@GetMapping("/ingredients")
 	private String showIngredients(Model model, @RequestParam long id) {
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, userService.getUserId());
 		DinnerDetails dinnerDetails = dinnerDetailRepo.getOne(id);
 
 		model.addAttribute("ingredient", dinnerDetails.getIngredients());
@@ -234,6 +246,8 @@ public class FormController {
 	
 	@PostMapping("/ingredients")
 	private String saveIngredient(@ModelAttribute Ingredient ingredient, @RequestParam long id, Model model) {
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, userService.getUserId());
 		DinnerDetails dinnerDetail = dinnerDetailRepo.getOne(id);
 		dinnerDetail.addIngredient(ingredient);
 		dinnerDetailRepo.save(dinnerDetail);

@@ -51,6 +51,7 @@ public class IngredientService {
 			IngredientDetails ingrDetail = new IngredientDetails(ingrName, user, isRecipeOrigin, shopSection);
 			//ingrDetailsRepo.save(ingrDetail);
 			//user.addIngredientDetail(ingrDetail);
+			saveIngrDetail(ingrDetail);
 			return ingrDetail;
 	//	}
 	}

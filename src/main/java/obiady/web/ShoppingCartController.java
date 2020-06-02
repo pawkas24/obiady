@@ -1,16 +1,17 @@
 package obiady.web;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSendException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,8 +28,6 @@ import obiady.ShopSection;
 import obiady.ShoppingCart;
 import obiady.ShoppingItem;
 import obiady.User;
-import obiady.Utility.Unit;
-import obiady.repository.ShopSectionRepository;
 import obiady.service.DinnerService;
 import obiady.service.IngredientService;
 import obiady.service.MailService;
@@ -53,14 +52,14 @@ public class ShoppingCartController {
 	@Autowired
 	private TemplateEngine templateEngine;
 	@Autowired
-	private ShopSectionRepository shopSectionRepo;
-	@Autowired
 	private ShopSectionService shopSectionService;
 	 
 
 	@GetMapping
 	public String showShoppingCart(Model model, @RequestParam(value = "mailConfirmation", required = false) boolean mailConfirmation) {
 		Long userId = userService.getUserId();
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, userId);
 		
 		//przygotować dwie listy isBought i notBought i przekazac do modelu
 		List<ShoppingItem> itemsBought = shoppingService.getShoppingCartWithSummarizedIngrs(userId, true);
@@ -98,16 +97,24 @@ public class ShoppingCartController {
 	
 	@PostMapping("/add-shopping-item")
 	public String addShoppingItemToTheCart(@RequestParam(value = "dinnerDetailId", required = false) String dinnerDetailId, 
-			@RequestParam(value = "randomDinnerName", required = false) String randomDinnerName, @ModelAttribute ShoppingItem shoppingItem) {
+			@RequestParam(value = "randomDinnerName", required = false) String randomDinnerName, @Valid @ModelAttribute ShoppingItem shoppingItem, Errors errors, 
+			Model model) {
+		model.addAttribute("shopSections", shopSectionService.findAll());
+		if (errors.hasErrors()) {
+		
+			return "shopping-cart";
+		}
 		User user = userService.findByUsername(userService.getUsername());
-		ShoppingCart shoppingCart = shoppingService.findByUserId(userService.getUserId());
+
+		
+		ShoppingCart shoppingCart = shoppingService.findByUserId(user.getId());
+		
 		
 		
 		if(Objects.isNull(shoppingCart)) {
 			shoppingCart = new ShoppingCart(user);
 			shoppingService.saveShoppingCart(shoppingCart);
 		}
-		
 		
 		DinnerDetails dinnerDetail = new DinnerDetails();
 		if(Objects.nonNull(dinnerDetailId) || Objects.nonNull(randomDinnerName)) {
@@ -141,8 +148,12 @@ public class ShoppingCartController {
 				shoppingCart.addShoppingItem(newShoppingItem);
 				//ingrService.saveIngrDetail(ingrDetail);
 				shoppingService.saveShoppingItem(newShoppingItem);
+				
 				//shoppingService.saveShoppingCart(shoppingCart);   // z tym dublowalo mi skladniki w tabeli shopping_item
 			}
+			//badge koszyka pokazujace ilosc skladnikow w koszyku
+			shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
+			
 			//jeśli randomDinnerName nie jest pusty, przeniesc id obiadu do plannera 
 			/*if(!randomDinnerName.equals(null)) {
 				jesli randomDinnerName nie jest pusty to 
@@ -188,6 +199,9 @@ public class ShoppingCartController {
 			shoppingCart.addShoppingItem(shoppingItem);
 			//ingrService.saveIngrDetail(ingrDetail);
 			shoppingService.saveShoppingItem(shoppingItem);
+			
+			//badge koszyka pokazujace ilosc skladnikow w koszyku
+			shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
 				 
 				//jesli dodaje skladnik spoza przepisu, istniejacy już w bazie
 			return "redirect:/shopping-cart";
@@ -197,20 +211,20 @@ public class ShoppingCartController {
 			//utworzyc nowy obiekt ingrDetail, przypisac mu pola, potem to nizej
 			//i dopiero ingrService.saveIngrDetail(ingrDetail);
 			//ingrService.saveIngrDetail(ingrDetail);
-			
-			//System.out.println("sssssssssssssssssssshhhhhhhhhhhhhhhhhhhhhhhooooooooooop section id " + shoppingItem.getIngrDetail().getShopSection().getSection());
+
 			//userIngrService.saveUserIngrIfNotExists(shoppingItem.getIngrName(), user);
 			//shoppingItem.setUser(user);   wywalone przy zmianie na shopping cart/item
-			
-			
-			
 			}
 	}
 
 	@PostMapping("/add-shopping-note")
 	public String addShoppingNoteToTheCart(Model model, @RequestParam String shoppingNote, RedirectAttributes redirectAttr) {
-		User user = userService.findByUsername(userService.getUsername());
-		ShoppingCart shoppingCart = shoppingService.findByUserId(user.getId());
+		Long userId = userService.getUserId();
+		
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, userId);
+		
+		ShoppingCart shoppingCart = shoppingService.findByUserId(userId);
 		shoppingCart.setNote(shoppingNote);
 		
 		//user.setShoppingNote(shoppingNote);
@@ -222,11 +236,13 @@ public class ShoppingCartController {
 		}
 	
 	@PostMapping("/delete")
-	public String deleteFromShoppingCart(@RequestParam(value="dinnerDetailId", required=false)  String dinnerDetailId) {
+	public String deleteFromShoppingCart(@RequestParam(value="dinnerDetailId", required=false)  String dinnerDetailId, Model model) {
 		//planer usun skladniki obiadu 
 		//lista zakupow button wyczysc
 		Long userId = userService.getUserId();
-		User user = userService.getUserById(userId);
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, userId);
+		
 		ShoppingCart shoppingCart = shoppingService.findByUserId(userId);
 		
 		if(Objects.isNull(dinnerDetailId)) {
@@ -252,8 +268,11 @@ public class ShoppingCartController {
 
 	
 	@PostMapping("/change-status")
-	public String removeFromShoppingCart(@RequestParam("ingrName") String cartIngrName) {
+	public String removeFromShoppingCart(@RequestParam("ingrName") String cartIngrName, Model model) {
 		Long userId = userService.getUserId();
+		
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, userId);
 		
 		List<ShoppingItem> shoppingItem = shoppingService.getShoppingCartItems(userId, cartIngrName);
 		for(ShoppingItem item : shoppingItem) {
@@ -265,19 +284,17 @@ public class ShoppingCartController {
 	
 	@GetMapping("/send-mail")
 	public String sendMail(RedirectAttributes redirectAttr) throws MessagingException {
-		User user = userService.getUserById(userService.getUserId());
+		Long userId = userService.getUserId();
 		
 		//List<ShoppingItem> shoppingList = shoppingService.findByUserId(user.getId()).getShoppingItems();
-		ShoppingCart shoppingCart = shoppingService.findByUserId(user.getId());
+		ShoppingCart shoppingCart = shoppingService.findByUserId(userId);
 		
 		String to = "pawkas24@gmail.com";
 		String subject = "Obiadomat - lista zakupów, " + LocalDate.now();
 		
 		Context context = new Context();
 		context.setVariable("shoppingCart", shoppingCart);
-		//context.setVariable("shoppingNote", user.getShoppingNote());
 		String body = templateEngine.process("email-template", context);
-		//String body ="<b>lista przepisow</b><br>";
 		try {
 		mailService.sendMail(to, subject, body, true);
 		}catch (MailSendException m) {

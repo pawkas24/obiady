@@ -31,6 +31,16 @@ public class ShopSection {
 	public ShopSection() {
 		super();
 	}
+	
+	public void addIngredientDetail(IngredientDetails ingrDetail) {
+		ingredientDetails.add(ingrDetail);
+		ingrDetail.setShopSection(this);
+	}
+	public void removeIngrDetail(IngredientDetails ingrDetail){
+		ingredientDetails.remove(ingrDetail);
+		ingrDetail.setShopSection(null);
+	}
+	
 	public Long getId() {
 		return id;
 	}

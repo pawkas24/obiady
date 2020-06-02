@@ -10,7 +10,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import obiady.Dinner;
+import obiady.User;
 import obiady.service.DinnerService;
+import obiady.service.ShoppingCartService;
 import obiady.service.UserService;
 
 @Controller
@@ -21,14 +23,18 @@ public class HistoryController {
 	private DinnerService dinnerService;
 	@Autowired
 	private UserService userService;
-
+	@Autowired
+	private ShoppingCartService shoppingService;
 	
 	
 	@GetMapping
 	public String showHistory(Model model, @PageableDefault(page = 0, size = 14) Pageable pageable) {
 		
-		String username = userService.getUsername();
-		Page<Dinner> page = dinnerService.getListOfUserDinners(username, pageable);
+		User user = userService.getUser();
+		//badge koszyka pokazujace ilosc skladnikow w koszyku
+		shoppingService.getNumberOfItemsLeftToBuy(model, user.getId());
+		
+		Page<Dinner> page = dinnerService.getListOfUserDinners(user.getUsername(), pageable);
 		
 		model.addAttribute("page", page);
 		

@@ -26,4 +26,6 @@ public interface ShoppingItemRepository extends JpaRepository<ShoppingItem, Long
 	
 	@Query("SELECT DISTINCT si.dinnerDetail.id FROM ShoppingItem AS si WHERE si.shoppingCart.user.username=?1 ")
 	List<Long> findDistinctByDinnerDetailId(String username); 
+	
+	long countByShoppingCart_User_IdAndIsBought(Long userId, boolean isBought);
 }

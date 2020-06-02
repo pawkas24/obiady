@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table
@@ -21,6 +22,7 @@ public class IngredientDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@NotBlank (message = "{obiady.Ingredient.ingredientDetail.name.NotBlank}") 
 	private String name;
 	boolean receipe;
 	

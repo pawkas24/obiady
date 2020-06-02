@@ -16,6 +16,7 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.Valid;
 
 import obiady.Utility.Unit;
 
@@ -28,6 +29,7 @@ public class ShoppingItem {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Valid
 	private IngredientDetails ingrDetail;
 	
 	private Unit unit;
@@ -49,7 +51,7 @@ public class ShoppingItem {
 		//this.ingrName = ingrName;
 		this.ingrDetail = ingrDetail;
 		this.unit = unit;
-		this.quantity = quantity;
+		this.quantity = 1.0;
 		//this.user = user;
 		this.dinnerDetail = dinnerDetail;
 		this.isBought = false;
@@ -59,6 +61,7 @@ public class ShoppingItem {
 	public ShoppingItem() {
 		super();
 		this.isBought = false;
+		this.quantity = 1.0;
 	}
 
 	private List<String> getUnits(){ 
